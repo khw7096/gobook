@@ -1,13 +1,128 @@
-# 의존성
-의존성이란...
+# 의존성이란?
+자신이 만든 프로그램이 작동되기 위해
+"연결된 소프트웨어, 라이브러리, 연관된 패키지, 환경변수, 프로그램을 사용하는 사용자의 특성, 조직의 특성.. 얼만큼 소프트웨어에 반영되고 연결되어 있는가?"에 대한 특성입니다.
+특히나 리눅스, 유닉스계열의 OS에 사용되는 많은 패키지는 각 라이브러리에 대해 의존성을 많이 가지고 있습니다.
+현대 프로그래밍에서 개발 분야, 업무의 특성상 의존성 완벽히 피하기는 힘듭니다.
+프로그래머 스스로가 자신의 코드에 얼마나 많은 의존성을 가지고 있는지 분석하고 이 의존성을 줄이려고 노력한다면 보다 좋은 소프트웨어를 만들 수 있을것입니다.
 
-#### 의존성의 특징, 문제점
+#### 의존성을 줄이면 얻는 이익
+- 소프트웨어의 수명을 늘릴 수 있습니다.
+- OS 또는 주변환경이 업그레이드되어도 자신의 프로그램에 미치는 영향이 적습니다.
+- 버그의 범위가 줄어들고, 예측하기 쉽습니다.
+- 다른 개발자의 사용률이 올라갑니다.
+
+#### 프로그래밍 체크사항
+여러분이 파이썬을 이용해서 중형규모의 소프트웨어를 제작했다고 가정하겠습니다. 몇가지 질문을 던지겠습니다.
+아래 질문중에 일부는 의존성과도 연관이 있습니다.
+- 여러분의 코드는 Windows, Linux, macOS에서 잘 작동합니까?
+- 여러분의 코드는 회사내부에서는 잘 작동합니다. 하지만 외부 환경에서도 잘 작동될까요?
+- 사용자의 컴퓨터에 파이썬이 설치되어 있지 않다면?
+- 여러분이 개발한 파이썬 버전과 사용자가 사용하는 파이썬 버전이 다르다면?
+- 파이썬은 다이나믹 렝귀지 입니다. 초급 프로그래밍 책에 나온대로 프로그래밍했다면, 버그를 가진 코드가 실행되기 직전까지는 실제 코드에 문법 에러가 존재한다는 것을 알아차리기 힘듭니다. 이런경우 어떻게 여러분의 코드를 테스트하겠습니까?
+- 제 자리에서는 에러가 없지만, 다른 사용자는 환경이 다르며 개인 셋팅들이 섞여서 에러가 발생합니다. 이 문제는 누구의 문제일까요? 또한 어떻게 이 문제를 개선하겠습니까?
 
 #### 클라우드 환경
+많은 기업들이 클라우드를 준비합니다. 수많은 새로운 머신들이 필요시 셋팅되고,
+필요한 소프트웨어들이 설치되고 잘 작동해야하며,
+비용의 이슈로 사용된 머신은 제거되어야 합니다.
+이런 환경은 의존성을 테스트하기에 사실 정말 좋은 환경입니다.
+의존성을 생각하며 소프트웨어를 제작했다면 클라우드환경에서도 프로그램은 잘 작동할 수 밖에 없습니다.
 
-#### ldd
+#### 링커, 공유라이브러리
+컴파일러는 코드를 기계어로 변환하는 역할을 합니다.
+링커는 컴파일러가 만든 결과물을 서로 연결시키는 역할을 합니다.
+옛날에는 이렇게 역할을 나누어서 작업했지만 현대 컴파일러는 링커 역할도 같이 하고 있습니다.
+링커는 우리가 만든 코드와 라이브러리를 연결합니다.
+라이브러리중에서 우리를 괴롭히는것은 동적라이브러러리라고 불리는 파일입니다.
+윈도우즈에서는 dll, 리눅스에서는 so, 맥에서는 dylib 확장자를 가집니다.
+우리가 만든 코드는 코드 그 자체로는 실행되지 않습니다. OS에 존재하는 많은 동적라이브러리가 물려서 실행되죠.
+OS에서 해당 공유라이브러리가 없다면, 우리가 만든 실행파일은 실행될 수 없습니다.
+
+우리가 만든 프로그램이 실제로 사용하고 있는 공유라이브러리를 체크해보겠습니다.
+
+리눅스에는 공유라이브러리를 체크하기 위해서 ldd 라는 명령어가 존재합니다.
+/bin/echo 명령어를 한번 ldd로 체크해보겠습니다.
+    
+    $ ldd /bin/echo
+
+macOS에서는 otool이 같은 역할을 합니다.
+터미널에서 입력받은 인수를 출력하는 유명한 명령어인 echo를 한번 조사해봅시다.
+
+    $ otool -L /bin/echo
+
+위 내용을 타이핑하면 아래 내용이 출력됩니다.
+
+    /usr/lib/libSystem.B.dylib
+
+echo명령어를 실행하기 위해서는 libSystem.B.dylib 파일이 필요하다고 합니다.
+이 파일이 없다면 echo는 실행될 수 없습니다.
+조금더 조사해 봅시다. 이번엔 libSystem.B.dylib 라이브러리가 공유하고 있는 공유라이브러리가 있는지 조사해 보겠습니다.
+
+    $ otool -L /usr/lib/libSystem.B.dylib
+
+아래는 출력의 결과입니다. 새상에나 난리가 났습니다. 이렇게 수많은 라이브러리가 물려있는지 몰랐습니다.
+
+	/usr/lib/system/libcache.dylib
+	/usr/lib/system/libcommonCrypto.dylib
+	/usr/lib/system/libcompiler_rt.dylib
+	/usr/lib/system/libcopyfile.dylib
+	/usr/lib/system/libcorecrypto.dylib
+	/usr/lib/system/libdispatch.dylib
+	/usr/lib/system/libdyld.dylib
+	/usr/lib/system/libkeymgr.dylib
+	/usr/lib/system/liblaunch.dylib
+	/usr/lib/system/libmacho.dylib
+	/usr/lib/system/libquarantine.dylib
+	/usr/lib/system/libremovefile.dylib
+	/usr/lib/system/libsystem_asl.dylib
+	/usr/lib/system/libsystem_blocks.dylib
+	/usr/lib/system/libsystem_c.dylib
+	/usr/lib/system/libsystem_configuration.dylib
+	/usr/lib/system/libsystem_coreservices.dylib
+	/usr/lib/system/libsystem_coretls.dylib
+	/usr/lib/system/libsystem_dnssd.dylib
+	/usr/lib/system/libsystem_info.dylib
+	/usr/lib/system/libsystem_kernel.dylib
+	/usr/lib/system/libsystem_m.dylib
+	/usr/lib/system/libsystem_malloc.dylib
+	/usr/lib/system/libsystem_network.dylib
+	/usr/lib/system/libsystem_networkextension.dylib
+	/usr/lib/system/libsystem_notify.dylib
+	/usr/lib/system/libsystem_platform.dylib
+	/usr/lib/system/libsystem_pthread.dylib
+	/usr/lib/system/libsystem_sandbox.dylib
+	/usr/lib/system/libsystem_secinit.dylib
+	/usr/lib/system/libsystem_symptoms.dylib
+	/usr/lib/system/libsystem_trace.dylib
+	/usr/lib/system/libunwind.dylib
+	/usr/lib/system/libxpc.dylib
+
+많은 라이브러리가 있지만, 맨 위에 있는 /usr/lib/system/libcache.dylib 파일을 다시한번 조사해보죠.
+
+    $ otool -L /usr/lib/system/libcache.dylib
+
+결과는 아래와 같습니다.
+
+	/usr/lib/system/libsystem_pthread.dylib
+	/usr/lib/system/libsystem_malloc.dylib
+	/usr/lib/system/libsystem_c.dylib
+	/usr/lib/system/libsystem_blocks.dylib
+	/usr/lib/system/libsystem_kernel.dylib
+	/usr/lib/system/libsystem_platform.dylib
+	/usr/lib/system/libdispatch.dylib
+	/usr/lib/system/libdyld.dylib
+	/usr/lib/system/libcompiler_rt.dylib
+
+아마 계속 타이핑하면 언젠가는 사용되는 모든 동적라이브러리를 알아낼 수 있습니다.
+(계속작성하기..)
+
+윈도우즈에서는 Cygwin을 설치하면 ldd를 사용할 수 있습니다.
+또는 [dependencywalker](http://dependencywalker.com)라는 소프트웨어를 이용할 수 있습니다.
 
 #### 상용툴 VS 성숙된 오픈소스의 사용
-- 의존성이 있지만 그래도 상용툴의 의존성보다 좋다.
+상용틀과 연관된 프로그램을 작성해야 한다면 비슷한 성숙한 오픈소스 프로젝트가 있는지 찾아보세요.
+상용툴 VS 오픈소스 2개중 어떤 의존성을 고를것 인지 고민한다면 저는 개인적으로 성숙한 오픈소스에 의존성을 가지는 것을 추천합니다.
 
 #### 가치가 발휘하는 순간
+의존성을 생각하며 프로그래밍하는것은 오랜시간이 걸립니다.
+하지만 이런 특성들을 고민하고 프로그래밍에 적용한다면 분명 미래에 큰 가치로 돌아올 것 입니다.

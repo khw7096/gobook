@@ -1,7 +1,13 @@
 # 프로그래밍의 절차
+일반적인 프로그래밍 절차는 다음과 같습니다.
+Make it Work, Make it Right, Make it Fast.
 
-유명한 명언이야기.
+### Make it Work(우선 동작하게 하라.)
+결과적으로 작동되지 않는 코드는 무의미 합니다.
 
+### Make it Right(올바르게 만들어라.)
+
+### Make it Fast(성능을 올려라.)
 1. 우선 동작하게 하라.(Make it work)
 2. 코드를 다시 자료구조, 알고리즘을 고려하라.(여러번 수정하고 짜봐야한다.) Make it right
 3. 속도와 성능을 올려라. Make it fast

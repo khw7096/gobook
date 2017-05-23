@@ -9,7 +9,8 @@
 
 	$ mkdir ~/go
 
-.bash_profile에 아래줄을 추가합니다.
+홈디렉토리에 .bash_profile에 아래줄을 추가합니다.
+파일이 없다면 .bash_profile을 생성하고 아래 내용을 추가합니다.
 
     export GOPATH=$HOME/go
 	export GOBIN=$GOPATH/bin
